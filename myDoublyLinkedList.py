@@ -6,36 +6,6 @@ class Node:
 
     def getData(self):
         return self.data
-
-
-    def deleteNode(self):
-        # Case 1: If this is the head node (no previous node)
-        if self.prev is None:
-            print("attempting to delete head\n")
-            if self.next:
-                self.next.prev = None
-                return self.next
-            return None  # If it's the only node
-        
-        # Case 2: If this is the last node
-        if self.next is None:
-            self.prev.next = None
-            temp = self.prev
-            self.prev = None  # ADDED: Clear connection
-            return temp
-        
-        # Case 3: If node is in the middle
-        self.prev.next = self.next
-        self.next.prev = self.prev
-        temp = self.prev
-        
-        # ADDED: Clear connections
-        self.prev = None
-        self.next = None
-        
-        if temp.prev is None:
-            return temp.next
-        return temp
     
     def isEdge(self):
         if ((self.prev == None) or (self.next == None) ):
@@ -46,8 +16,18 @@ class Node:
 class DoublyLinkedList:
 
     def __init__(self):
-        self.head = None
-        self.tail = None
+        # CHANGED: Create dummy nodes instead of None
+        self.dummy_head = Node()  # Dummy head node
+        self.dummy_tail = Node()  # Dummy tail node
+        
+        self.dummy_head.data = "BEGINNING"
+        self.dummy_tail.data = "ENDING"
+        
+        # Connect dummy nodes
+        self.dummy_head.next = self.dummy_tail
+        self.dummy_tail.prev = self.dummy_head
+        
+        # Keep track of length
         self.length = 0
 
     
@@ -55,14 +35,11 @@ class DoublyLinkedList:
         newNode = Node(data)
         self.length += 1
 
-        if self.head is None:
-            self.head = newNode
-            self.tail = newNode
-            return
+        newNode.next = self.dummy_head.next
+        newNode.prev = self.dummy_head
+        self.dummy_head.next.prev = newNode
+        self.dummy_head.next = newNode
 
-        newNode.next = self.head
-        self.head.prev = newNode
-        self.head = newNode
 
 
 
@@ -70,37 +47,60 @@ class DoublyLinkedList:
         newNode = Node(data)
         self.length += 1  # CHANGED: Used += operator
 
-        if self.head is None:  # ADDED: Empty list case
-            self.head = newNode
-            self.tail = newNode
-            return
-
-        # CHANGED: Use tail pointer instead of traversing
-        self.tail.next = newNode
-        newNode.prev = self.tail
-        self.tail = newNode
+        newNode.prev = self.dummy_tail.prev
+        newNode.next = self.dummy_tail
+        self.dummy_tail.prev.next = newNode
+        self.dummy_tail.prev = newNode
         
     def getLength(self):
         return self.length
     
     def getHead(self):
-        return self.head
+        if self.length > 0:
+            return self.dummy_head.next
+        return None
     
     def getTail(self):
-        return self.tail
+        if self.length > 0:
+            return self.dummy_tail.prev
+        return None
+        
+    def getNext(self, node):
+        if ((node != None) and (node != self.dummy_tail)):
+            return node.next
+        else:
+            return node
+        
+    def getPrev(self, node):
+        if ((node != None) and (node != self.dummy_head)):
+            return node.prev
+        else:
+            return node
 
     def printList(self):
-        currNode = self.head
-        while(currNode != None):
+        currNode = self.dummy_head.next
+        while(currNode != self.dummy_tail):
             print(str(currNode.data).strip())
             currNode = currNode.next
     
+    
     def deleteNode(self, node):
-        if node == self.head:
-            self.head = node.next
-
-        if node == self.tail:
-            self.tail = node.prev
-
+    # Validation with specific error messages
+        if not node:
+            print("Error: Cannot delete None node")
+            return False
+        if node == self.dummy_head or node == self.dummy_tail:
+            print("Error: Cannot delete dummy nodes")
+            return False
+            
+        # Delete the node
+        node.prev.next = node.next
+        node.next.prev = node.prev
         self.length -= 1
+        
+        # Optional: clear the node's connections
+        node.prev = None
+        node.next = None
+        
+        return True
 
