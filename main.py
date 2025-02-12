@@ -39,8 +39,8 @@ def main():
                 if attempt not in fileList:
                     confirm = input("This file does not exist yet. Would you like to create it? Y to confirm or anything else to go back: ")
                     if (confirm == "Y"):
+                        quickUpdate(attempt)
                         userFile = open(attempt, "x")
-                        #quickUpdate(len(fileList), attempt)
                         opened = True
 
                 # If file is in the file list
@@ -65,21 +65,25 @@ def main():
             # start file menu loop
             fileExit = False
             currLine = userList.getHead()
+            if currLine == None:
+                currLine = userList.getDummyHead()
             #print(f"Head is: {currLine.data}")  #-debug line
             printFileMenu()
             while (not fileExit):
-                
-                cmd = input(f"Line(enter 'help' for menu): {currLine.data}\nCommand: ")
+                print(f"\nLine(enter 'help' for menu): {currLine.data}")
+                cmd = input("Command: ")
 
 
                 # quit (q)
                 if (cmd.strip() == "q"):
+                    DLLToFile(userList, userFile.name)
                     fileExit = True
+                    print(f"Saving and Exiting {userFile.name}")
                     break
                 
                 # delete (d)
                 elif (cmd.strip() == "d"):
-                    tempNode = currLine.next
+                    tempNode = currLine.prev
 
                     if (userList.deleteNode(currLine)):
                         currLine = tempNode
@@ -103,26 +107,54 @@ def main():
 
                 # insert (i)
                 elif (cmd.strip() == "i"):
-                    pass
+
+                    newLine = input("What Line would you like to input?: ")
+
+                    if (not userList.insertAt(newLine + "\n", currLine)):
+                        print("Cannot Insert At This Location")
+                    else:
+                        print("Added!")
+                        currLine = currLine.next
 
                 # print (p)
                 elif (cmd.strip() == "p"):
                     userList.printList()
+                    
 
-                # length
+                # length (l)
                 elif(cmd.strip() == "l"):
-                    pass 
+                    print(f"Length of the File is {userList.getLength} Lines.") 
                 
-                # help menu
+                # save (s)
+                elif(cmd.strip() == "s"):
+                    DLLToFile(userList, userFile.name)
+
+
+                # help menu (help)
                 elif(cmd.strip() == "help"):
                     printFileMenu()
-                    print("\n")
+                
+                else:
+                    print("Invalid Input.")
+                
+
+                
+                    
 
                     
 
 
+# Takes a valid DLL and filename and updates the file
+def DLLToFile (listName, fileName):
+    textFile = open(fileName, "w")
 
+    currNode = listName.getHead()
 
+    while (currNode != listName.getTail()):
+        textFile.write(currNode.data)
+        currNode = currNode.next
+    
+    textFile.close()
 
 
 
@@ -138,19 +170,29 @@ def fileToDLL (fileName):
 
     return list
 
+# prints out the menu
 def printFileMenu():
     print("+-----------------MENU-----------------+")
     print("|                                      |")
-    print("|'q'          Quit the program         |")
+    print("|'q'          Save and Quit            |")
     print("|'d'          Delete Line              |")
     print("|'f'          Move Forward             |")
     print("|'b'          Move Backward            |")
     print("|'h'          Move to First Line       |")
     print("|'t'          Move to Last Line        |")
-    print("|'i'          Insert Line after current|")
+    print("|'i'          Insert Line After Current|")
     print("|'p'          Print File               |")
     print("|'l'          Length of List           |")
+    print("|'s'          Save File                |")
     print("+--------------------------------------+")
+
+# updates storage txt file with new filename
+def quickUpdate(newFileName):
+    textFile = open("fileList.txt", "a")
+    textFile.write("\n" + newFileName)
+    textFile.close()
+
+
 
 if __name__ == "__main__":
     main()
