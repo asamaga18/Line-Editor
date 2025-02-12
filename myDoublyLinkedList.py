@@ -16,18 +16,18 @@ class Node:
 class DoublyLinkedList:
 
     def __init__(self):
-        # CHANGED: Create dummy nodes instead of None
-        self.dummy_head = Node()  # Dummy head node
-        self.dummy_tail = Node()  # Dummy tail node
         
-        self.dummy_head.data = "BEGINNING"
-        self.dummy_tail.data = "ENDING"
+        self.dummy_head = Node()  
+        self.dummy_tail = Node()  
         
-        # Connect dummy nodes
+        self.dummy_head.data = "BEGINNING OF FILE"
+        self.dummy_tail.data = "ENDING OF FILE"
+        
+        
         self.dummy_head.next = self.dummy_tail
         self.dummy_tail.prev = self.dummy_head
         
-        # Keep track of length
+        
         self.length = 0
 
     
@@ -45,12 +45,29 @@ class DoublyLinkedList:
 
     def insertLast(self, data):
         newNode = Node(data)
-        self.length += 1  # CHANGED: Used += operator
+        self.length += 1  
 
         newNode.prev = self.dummy_tail.prev
         newNode.next = self.dummy_tail
         self.dummy_tail.prev.next = newNode
         self.dummy_tail.prev = newNode
+
+    def insertAt(self, data, currNode):
+        
+        if currNode == self.dummy_tail:
+            print("returning false")
+            return False
+        
+        newNode = Node(data)
+        self.length += 1
+        
+        
+        newNode.next = currNode.next
+        newNode.prev = currNode
+        currNode.next.prev = newNode
+        currNode.next = newNode
+        
+        return True
         
     def getLength(self):
         return self.length
@@ -64,7 +81,11 @@ class DoublyLinkedList:
         if self.length > 0:
             return self.dummy_tail.prev
         return None
-        
+    
+    def getDummyHead(self):
+        return self.dummy_head
+    
+
     def getNext(self, node):
         if ((node != None) and (node != self.dummy_tail)):
             return node.next
@@ -85,7 +106,7 @@ class DoublyLinkedList:
     
     
     def deleteNode(self, node):
-    # Validation with specific error messages
+
         if not node:
             print("Error: Cannot delete None node")
             return False
@@ -93,12 +114,12 @@ class DoublyLinkedList:
             print("Error: Cannot delete dummy nodes")
             return False
             
-        # Delete the node
+        
         node.prev.next = node.next
         node.next.prev = node.prev
         self.length -= 1
         
-        # Optional: clear the node's connections
+        
         node.prev = None
         node.next = None
         
